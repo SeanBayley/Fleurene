@@ -12,6 +12,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic'
+
 interface Product {
   id: string
   name: string
