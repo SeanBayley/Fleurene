@@ -29,6 +29,9 @@ import {
 import { supabase } from "@/lib/supabase"
 import { toast } from "sonner"
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic'
+
 interface UserProfile {
   id: string
   email: string

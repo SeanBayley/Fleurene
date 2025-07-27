@@ -43,6 +43,9 @@ import { supabase } from "@/lib/supabase"
 import { toast } from "sonner"
 import Image from "next/image"
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic'
+
 interface Product {
   id: string
   name: string
