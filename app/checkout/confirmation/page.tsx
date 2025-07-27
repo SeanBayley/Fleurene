@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Package, CheckCircle, ArrowLeft } from 'lucide-react'
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic'
+
 function OrderConfirmationContent() {
   const searchParams = useSearchParams()
   const [orderDetails, setOrderDetails] = useState<{

@@ -27,6 +27,9 @@ import { supabase } from '@/lib/supabase'
 import { AddToCartButton } from '@/components/cart/add-to-cart-button'
 import { toast } from 'sonner'
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic'
+
 interface Product {
   id: string
   name: string

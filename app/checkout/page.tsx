@@ -18,6 +18,9 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
 
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic'
+
 // Helper function to format price
 const formatPrice = (price: number): string => {
   return new Intl.NumberFormat('en-ZA', {

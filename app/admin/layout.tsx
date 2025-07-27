@@ -22,6 +22,9 @@ import {
 import { motion, AnimatePresence } from "framer-motion"
 import "./globals.css"
 
+// Force dynamic rendering for this layout
+export const dynamic = 'force-dynamic'
+
 interface AdminLayoutProps {
   children: React.ReactNode
 }
