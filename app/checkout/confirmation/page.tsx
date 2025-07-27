@@ -1,13 +1,13 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Package, CheckCircle, ArrowLeft } from 'lucide-react'
 
-export default function OrderConfirmationPage() {
+function OrderConfirmationContent() {
   const searchParams = useSearchParams()
   const [orderDetails, setOrderDetails] = useState<{
     orderNumber?: string
@@ -93,5 +93,27 @@ export default function OrderConfirmationPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function OrderConfirmationPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse" />
+            <CardTitle className="text-xl">Loading...</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center">
+              <p className="text-gray-600">Loading order confirmation...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <OrderConfirmationContent />
+    </Suspense>
   )
 } 
