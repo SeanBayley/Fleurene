@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseServer } from '@/lib/supabase-server'
 import { createClient } from '@supabase/supabase-js'
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic'
+
 // Helper function to verify admin access
 async function verifyAdminAccess(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
