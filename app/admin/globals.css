@@ -1,0 +1,8 @@
+/* Minimal admin styles - cursor fixes only */
+input, textarea, select, button, [role="button"], a {
+  cursor: pointer !important;
+}
+
+[data-radix-popper-content-wrapper] {
+  z-index: 10000 !important;
+} 
