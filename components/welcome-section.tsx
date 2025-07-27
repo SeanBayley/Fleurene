@@ -54,40 +54,40 @@ Fleurene`
     if (!isClient) return
 
     const romanticeElements = ["🌸", "✨", "🌺", "🌷", "💐", "🦋", "💕", "🌙", "⭐", "🧚‍♀️", "🌹", "💖", "💫", "🌼", "🌻"]
-    const flowerEmojis = ["🌸", "🌺", "🌷", "🌹", "🌻", "🌼", "💐", "🦋"]
+    const flowerEmojis = ["🌸", "🌺", "🌷", "🌹", "🌻", "🌼", "💐", "��"]
 
-    // Generate truly random floating elements with enhanced movement
-    const newFloatingElements = Array.from({ length: 18 }, (_, i) => ({
+    // Generate deterministic floating elements with predictable positioning
+    const newFloatingElements = Array.from({ length: 8 }, (_, i) => ({
       id: `romantic-element-${i}`,
-      left: Math.random() * 85 + 5, // Random positioning between 5-90%
-      top: Math.random() * 85 + 5,  // Random positioning between 5-90%
-      emoji: romanticeElements[Math.floor(Math.random() * romanticeElements.length)],
-      duration: Math.random() * 15 + 10, // Faster duration between 10-25 seconds
-      delay: Math.random() * 8,
-      motionType: Math.floor(Math.random() * 4), // Different motion patterns
+      left: 10 + (i * 10), // Deterministic positioning
+      top: 5 + (i * 12),   // Deterministic positioning
+      emoji: romanticeElements[i % romanticeElements.length],
+      duration: 15 + (i * 2), // Deterministic duration
+      delay: i * 1.5,
+      motionType: i % 4, // Deterministic motion patterns
     }))
 
-    // Generate random flower motifs with enhanced movement
-    const newFlowerMotifs = Array.from({ length: 10 }, (_, i) => ({
+    // Generate deterministic flower motifs
+    const newFlowerMotifs = Array.from({ length: 5 }, (_, i) => ({
       id: `flower-motif-${i}`,
-      left: Math.random() * 80 + 10, // Random positioning
-      top: Math.random() * 80 + 10,  // Random positioning
-      emoji: flowerEmojis[Math.floor(Math.random() * flowerEmojis.length)],
-      duration: Math.random() * 20 + 15, // Faster duration between 15-35 seconds
-      delay: Math.random() * 6,
-      fontSize: Math.random() * 35 + 30, // Random size between 30-65px
-      motionType: Math.floor(Math.random() * 4), // Different motion patterns
+      left: 15 + (i * 15), // Deterministic positioning
+      top: 10 + (i * 18),  // Deterministic positioning
+      emoji: flowerEmojis[i % flowerEmojis.length],
+      duration: 20 + (i * 3), // Deterministic duration
+      delay: i * 2,
+      fontSize: 35 + (i * 5), // Deterministic size
+      motionType: i % 4, // Deterministic motion patterns
     }))
 
-    // Generate random light particles with enhanced movement
-    const newLightParticles = Array.from({ length: 12 }, (_, i) => ({
+    // Generate deterministic light particles
+    const newLightParticles = Array.from({ length: 6 }, (_, i) => ({
       id: `light-particle-${i}`,
-      left: Math.random() * 95 + 2, // Random positioning
-      top: Math.random() * 95 + 2,  // Random positioning
+      left: 5 + (i * 16), // Deterministic positioning
+      top: 8 + (i * 14),  // Deterministic positioning
       emoji: '',
-      duration: Math.random() * 12 + 12, // Faster duration between 12-24 seconds
-      delay: Math.random() * 4,
-      motionType: Math.floor(Math.random() * 3), // Different motion patterns
+      duration: 18 + (i * 2), // Deterministic duration
+      delay: i * 1.5,
+      motionType: i % 3, // Deterministic motion patterns
     }))
 
     setFloatingElements(newFloatingElements)
@@ -164,31 +164,31 @@ Fleurene`
               switch(type) {
                 case 0: // Spiral motion
                   return {
-                    x: [0, 150 * Math.cos(0), 150 * Math.cos(Math.PI/2), 150 * Math.cos(Math.PI), 150 * Math.cos(3*Math.PI/2), 0],
-                    y: [0, 150 * Math.sin(0), 150 * Math.sin(Math.PI/2), 150 * Math.sin(Math.PI), 150 * Math.sin(3*Math.PI/2), 0],
+                    x: [0, 50, 0, -50, 0],
+                    y: [0, -50, 0, 50, 0],
                     rotate: [0, 90, 180, 270, 360],
-                    scale: [1, 1.4, 0.8, 1.2, 1],
+                    scale: [1, 1.2, 0.8, 1.1, 1],
                   }
                 case 1: // Wave motion
                   return {
-                    x: [0, Math.random() * 200 - 100, Math.random() * 200 - 100, Math.random() * 200 - 100, 0],
-                    y: [0, Math.sin(0) * 100, Math.sin(Math.PI/2) * 100, Math.sin(Math.PI) * 100, 0],
-                    rotate: [0, Math.random() * 720, Math.random() * 720, 0],
-                    scale: [1, Math.random() * 1 + 0.5, Math.random() * 1 + 0.5, 1],
+                    x: [0, 30, -30, 20, 0],
+                    y: [0, -40, 40, -20, 0],
+                    rotate: [0, 180, 360, 540, 720],
+                    scale: [1, 1.1, 0.9, 1.05, 1],
                   }
                 case 2: // Bounce motion
                   return {
-                    x: [0, Math.random() * 120 - 60, Math.random() * 120 - 60, Math.random() * 120 - 60, 0],
-                    y: [0, -Math.random() * 150, Math.random() * 150, -Math.random() * 100, 0],
-                    rotate: [0, Math.random() * 360, Math.random() * 360, 0],
-                    scale: [1, 1.8, 0.6, 1.4, 1],
+                    x: [0, 20, -20, 15, 0],
+                    y: [0, -60, 60, -30, 0],
+                    rotate: [0, 120, 240, 360, 480],
+                    scale: [1, 1.3, 0.7, 1.2, 1],
                   }
-                default: // Random chaotic motion
+                default: // Simple circular motion
                   return {
-                    x: [0, Math.random() * 180 - 90, Math.random() * 180 - 90, Math.random() * 180 - 90, 0],
-                    y: [0, Math.random() * 180 - 90, Math.random() * 180 - 90, Math.random() * 180 - 90, 0],
-                    rotate: [0, Math.random() * 540, Math.random() * 540, 0],
-                    scale: [1, Math.random() * 1.2 + 0.4, Math.random() * 1.2 + 0.4, 1],
+                    x: [0, 40, 0, -40, 0],
+                    y: [0, -40, 0, 40, 0],
+                    rotate: [0, 90, 180, 270, 360],
+                    scale: [1, 1.1, 0.9, 1.05, 1],
                   }
               }
             }
@@ -224,31 +224,31 @@ Fleurene`
               switch(type) {
                 case 0: // Figure-8 motion
                   return {
-                    x: [0, 100 * Math.cos(0), 100 * Math.cos(Math.PI/4), 100 * Math.cos(Math.PI/2), 100 * Math.cos(3*Math.PI/4), 100 * Math.cos(Math.PI), 0],
-                    y: [0, 50 * Math.sin(0), 50 * Math.sin(Math.PI/2), 50 * Math.sin(Math.PI), 50 * Math.sin(3*Math.PI/2), 50 * Math.sin(2*Math.PI), 0],
-                    rotate: [0, 45, 90, 135, 180, 225, 270, 315, 360],
-                    scale: [1, 1.3, 0.9, 1.5, 0.7, 1.2, 1],
+                    x: [0, 40, 0, -40, 0],
+                    y: [0, -30, 0, 30, 0],
+                    rotate: [0, 90, 180, 270, 360],
+                    scale: [1, 1.2, 0.9, 1.3, 1],
                   }
                 case 1: // Petal drift
                   return {
-                    x: [0, Math.random() * 160 - 80, Math.random() * 160 - 80, Math.random() * 160 - 80, 0],
-                    y: [0, Math.random() * 160 - 80, Math.random() * 160 - 80, Math.random() * 160 - 80, 0],
-                    rotate: [0, Math.random() * 270, Math.random() * 270, 0],
-                    scale: [1, Math.random() * 0.8 + 0.6, Math.random() * 0.8 + 0.6, 1],
+                    x: [0, 25, -25, 15, 0],
+                    y: [0, -35, 35, -20, 0],
+                    rotate: [0, 90, 180, 270, 360],
+                    scale: [1, 1.1, 0.8, 1.05, 1],
                   }
                 case 2: // Floating dance
                   return {
-                    x: [0, Math.sin(0) * 80, Math.sin(Math.PI/3) * 80, Math.sin(2*Math.PI/3) * 80, Math.sin(Math.PI) * 80, 0],
-                    y: [0, Math.cos(0) * 120, Math.cos(Math.PI/3) * 120, Math.cos(2*Math.PI/3) * 120, Math.cos(Math.PI) * 120, 0],
+                    x: [0, 30, -30, 20, 0],
+                    y: [0, -40, 40, -25, 0],
                     rotate: [0, 72, 144, 216, 288, 360],
-                    scale: [1, 1.4, 0.8, 1.6, 0.9, 1],
+                    scale: [1, 1.2, 0.8, 1.4, 0.9, 1],
                   }
-                default: // Wild flutter
+                default: // Simple circular motion
                   return {
-                    x: [0, Math.random() * 200 - 100, Math.random() * 200 - 100, Math.random() * 200 - 100, 0],
-                    y: [0, Math.random() * 200 - 100, Math.random() * 200 - 100, Math.random() * 200 - 100, 0],
-                    rotate: [0, Math.random() * 450, Math.random() * 450, 0],
-                    scale: [1, Math.random() * 1 + 0.5, Math.random() * 1 + 0.5, 1],
+                    x: [0, 35, 0, -35, 0],
+                    y: [0, -35, 0, 35, 0],
+                    rotate: [0, 120, 240, 360, 480],
+                    scale: [1, 1.1, 0.9, 1.05, 1],
                   }
               }
             }
@@ -285,24 +285,24 @@ Fleurene`
               switch(type) {
                 case 0: // Sparkle burst
                   return {
-                    x: [0, Math.random() * 120 - 60, Math.random() * 120 - 60, Math.random() * 120 - 60, 0],
-                    y: [0, Math.random() * 120 - 60, Math.random() * 120 - 60, Math.random() * 120 - 60, 0],
-                    scale: [0.5, 3, 0.5, 2.5, 0.5],
-                    opacity: [0.1, 0.8, 0.1, 0.6, 0.1],
+                    x: [0, 20, -20, 15, 0],
+                    y: [0, -25, 25, -15, 0],
+                    scale: [0.5, 2.5, 0.5, 2, 0.5],
+                    opacity: [0.1, 0.6, 0.1, 0.4, 0.1],
                   }
                 case 1: // Gentle float
                   return {
-                    x: [0, Math.random() * 100 - 50, Math.random() * 100 - 50, 0],
-                    y: [0, Math.random() * 100 - 50, Math.random() * 100 - 50, 0],
-                    scale: [0.8, 2.2, 0.8, 1.8, 0.8],
-                    opacity: [0.2, 0.5, 0.2, 0.4, 0.2],
+                    x: [0, 15, -15, 10, 0],
+                    y: [0, -20, 20, -12, 0],
+                    scale: [0.8, 1.8, 0.8, 1.5, 0.8],
+                    opacity: [0.2, 0.4, 0.2, 0.3, 0.2],
                   }
                 default: // Twinkle dance
                   return {
-                    x: [0, Math.random() * 140 - 70, Math.random() * 140 - 70, Math.random() * 140 - 70, 0],
-                    y: [0, Math.random() * 140 - 70, Math.random() * 140 - 70, Math.random() * 140 - 70, 0],
-                    scale: [0.5, 2.8, 0.5, 2.2, 0.5],
-                    opacity: [0.1, 0.7, 0.1, 0.5, 0.1],
+                    x: [0, 18, -18, 12, 0],
+                    y: [0, -22, 22, -14, 0],
+                    scale: [0.5, 2.2, 0.5, 1.8, 0.5],
+                    opacity: [0.1, 0.5, 0.1, 0.3, 0.1],
                   }
               }
             }
