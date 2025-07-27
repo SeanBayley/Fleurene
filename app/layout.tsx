@@ -9,6 +9,7 @@ import { WhisperProvider } from "@/components/whisper-context"
 import WhisperMessage from "@/components/whisper-message"
 import CustomCursor from "@/components/custom-cursor"
 import { Toaster } from "sonner"
+import { Analytics } from "@vercel/analytics/next"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -39,6 +40,7 @@ export default function RootLayout({
                 closeButton
                 duration={4000}
               />
+              <Analytics />
             </WhisperProvider>
           </CartProvider>
         </AuthProvider>

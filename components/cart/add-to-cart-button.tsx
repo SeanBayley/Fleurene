@@ -6,6 +6,7 @@ import { useCart, type CartItem } from './cart-provider'
 import { ShoppingCart, Plus, Minus, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
+import { analytics } from '@/lib/analytics'
 
 interface Product {
   id: string
@@ -101,6 +102,14 @@ export function AddToCartButton({
           options: variant.options
         } : undefined
       }, quantity)
+
+      // Track add to cart event
+      analytics.trackAddToCart(
+        variant?.name || product.name,
+        product.id,
+        effectivePrice,
+        quantity
+      )
 
       // Show success feedback
       setJustAdded(true)

@@ -17,6 +17,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
+import { analytics } from '@/lib/analytics'
 
 // Force dynamic rendering for this page
 export const dynamic = 'force-dynamic'
@@ -119,6 +120,13 @@ export default function CheckoutPage() {
     }
   }, [currentStep])
 
+  // Track checkout start when component mounts
+  useEffect(() => {
+    if (items.length > 0) {
+      analytics.trackCheckoutStart(totalPrice, totalItems)
+    }
+  }, [])
+
   // Redirect if cart is empty
   useEffect(() => {
     if (items.length === 0) {
@@ -214,6 +222,13 @@ export default function CheckoutPage() {
 
       // Order created successfully
       toast.success(`Order ${result.order.order_number} created successfully!`)
+      
+      // Track purchase event
+      analytics.trackPurchase(
+        result.order.order_number,
+        finalTotal,
+        items.length
+      )
       
       // Clear the cart
       await clearCart()
