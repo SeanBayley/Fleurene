@@ -18,7 +18,6 @@ import StoryModal from "@/components/story-modal"
 import JournalModal from "@/components/journal-modal"
 import GlobalFlowerExplosion from "@/components/global-flower-explosion"
 import GiftGuideTrigger from "@/components/gift-guide-trigger"
-import DiscoverYourMagic from "@/components/discover-your-magic"
 import MoodMirrorTrigger from "@/components/mood-mirror-trigger"
 import { FlowerExplosionProvider } from "@/components/flower-explosion-context"
 import QuizModal from "@/components/quiz-modal"
@@ -85,7 +84,6 @@ export default function Home() {
             <StorySection onStartStory={() => setShowStoryModal(true)} />
           </div>
           <CommunityJournalSection />
-          <DiscoverYourMagic onTakeQuiz={() => setShowQuizModal(true)} />
           <QuizSection />
           <div id="journal-section">
             <JournalSection onOpenJournal={() => setShowJournalModal(true)} />
