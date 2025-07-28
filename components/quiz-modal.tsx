@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
 import { quizQuestions } from "@/lib/quiz-data"
+import { calculateResults } from "@/lib/quiz-utils"
 import QuizResults from "@/components/quiz-results"
 
 interface QuizModalProps {
@@ -102,11 +103,22 @@ export default function QuizModal({ questionCount, onClose }: QuizModalProps) {
   }
 
   if (showResults) {
+    // Calculate results from answers
+    const results = calculateResults(answers.slice(0, questionCount), questionCount)
+    const primaryArchetype = results[0]?.archetype || "Unknown"
+    
+    // Convert results to archetype breakdown format
+    const archetypeBreakdown: Record<string, number> = {}
+    results.forEach(result => {
+      archetypeBreakdown[result.archetype] = result.percentage
+    })
+
     return (
       <QuizResults
-        answers={answers.slice(0, questionCount)} // Ensure we only pass the correct number of answers
+        primaryArchetype={primaryArchetype}
+        archetypeBreakdown={archetypeBreakdown}
+        answers={answers.slice(0, questionCount)}
         questionCount={questionCount}
-        onClose={onClose}
         onRestart={() => {
           console.log("Restarting quiz...")
           setCurrentQuestion(0)
