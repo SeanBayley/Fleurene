@@ -69,12 +69,24 @@ export default function FeaturedCollections() {
         `)
         .eq('is_active', true)
         .order('created_at', { ascending: false })
-        .limit(6)
+        .limit(20) // Increased limit to account for filtering
 
       if (error) {
         console.error('Error fetching products:', error)
       } else {
-        setProducts(data || [])
+        // Filter out out-of-stock products
+        const availableProducts = (data || []).filter(product => {
+          // If product doesn't track quantity, it's always available
+          if (!product.track_quantity) return true
+          
+          // If product allows backorder, it's available even if stock is 0
+          if (product.allow_backorder) return true
+          
+          // If product tracks quantity and doesn't allow backorder, check if stock > 0
+          return product.stock_quantity > 0
+        }).slice(0, 6) // Take only the first 6 available products
+        
+        setProducts(availableProducts)
       }
     } catch (error) {
       console.error('Error fetching products:', error)
