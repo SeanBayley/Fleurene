@@ -52,50 +52,28 @@ export default function Navigation() {
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Fleurene
-              </h1>
+              <Link href="/">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent cursor-pointer">
+                  Fleurene
+                </h1>
+              </Link>
             </motion.div>
 
             {/* Desktop Navigation */}
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-8">
-                <a
-                  href="#story"
-                  className="text-purple-300 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                >
-                  Story
-                </a>
                 <Link
                   href="/shop"
-                  className="text-purple-300 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                  className="text-purple-600 hover:text-purple-800 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
                 >
                   Shop
                 </Link>
                 <Link
                   href="/track-order"
-                  className="text-purple-300 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                  className="text-purple-600 hover:text-purple-800 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
                 >
                   Track Order
                 </Link>
-                <a
-                  href="#quiz"
-                  className="text-purple-300 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                >
-                  Quiz
-                </a>
-                <a
-                  href="#collections"
-                  className="text-purple-300 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                >
-                  Collections
-                </a>
-                <a
-                  href="#journal"
-                  className="text-purple-300 hover:text-purple-600 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
-                >
-                  Journal
-                </a>
                 
                 {/* Admin Link - Only show for admin users */}
                 {profile?.role === 'admin' && (
@@ -151,7 +129,7 @@ export default function Navigation() {
 
             {/* Mobile Menu Button */}
             <motion.button
-              className="md:hidden p-2 text-purple-300"
+              className="md:hidden p-2 text-purple-600"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               whileTap={{ scale: 0.95 }}
             >
@@ -171,13 +149,6 @@ export default function Navigation() {
               transition={{ duration: 0.2 }}
             >
               <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a
-                  href="#story"
-                  className="text-purple-600 hover:text-purple-800 block px-3 py-2 rounded-md text-base font-medium"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Story
-                </a>
                 <Link
                   href="/shop"
                   className="text-purple-600 hover:text-purple-800 block px-3 py-2 rounded-md text-base font-medium"
@@ -192,27 +163,6 @@ export default function Navigation() {
                 >
                   Track Order
                 </Link>
-                <a
-                  href="#quiz"
-                  className="text-purple-600 hover:text-purple-800 block px-3 py-2 rounded-md text-base font-medium"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Quiz
-                </a>
-                <a
-                  href="#collections"
-                  className="text-purple-600 hover:text-purple-800 block px-3 py-2 rounded-md text-base font-medium"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Collections
-                </a>
-                <a
-                  href="#journal"
-                  className="text-purple-600 hover:text-purple-800 block px-3 py-2 rounded-md text-base font-medium"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Journal
-                </a>
                 
                 {/* Mobile Admin Link */}
                 {profile?.role === 'admin' && (

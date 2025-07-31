@@ -114,19 +114,51 @@ export default function QuizModal({ questionCount, onClose }: QuizModalProps) {
     })
 
     return (
-      <QuizResults
-        primaryArchetype={primaryArchetype}
-        archetypeBreakdown={archetypeBreakdown}
-        answers={answers.slice(0, questionCount)}
-        questionCount={questionCount}
-        onRestart={() => {
-          console.log("Restarting quiz...")
-          setCurrentQuestion(0)
-          setAnswers([])
-          setShowResults(false)
-          setIsProcessingAnswer(false)
+      <motion.div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={(e) => {
+          // Close modal if clicking on backdrop
+          if (e.target === e.currentTarget) {
+            handleClose()
+          }
         }}
-      />
+      >
+        <motion.div
+          className="bg-white/95 backdrop-blur-md rounded-3xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.8, opacity: 0 }}
+          transition={{ type: "spring", damping: 25, stiffness: 300 }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Close button - Fixed positioning at top right */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClose}
+            className="absolute top-4 right-4 z-10 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full w-10 h-10 p-0 flex items-center justify-center shadow-sm border border-gray-200 bg-white/80 backdrop-blur-sm"
+          >
+            <X className="w-5 h-5" />
+          </Button>
+
+          <QuizResults
+            primaryArchetype={primaryArchetype}
+            archetypeBreakdown={archetypeBreakdown}
+            answers={answers.slice(0, questionCount)}
+            questionCount={questionCount}
+            onRestart={() => {
+              console.log("Restarting quiz...")
+              setCurrentQuestion(0)
+              setAnswers([])
+              setShowResults(false)
+              setIsProcessingAnswer(false)
+            }}
+          />
+        </motion.div>
+      </motion.div>
     )
   }
 
