@@ -47,12 +47,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔍 [AuthContext] Auth state change event:', event, 'user:', session?.user?.id)
       setSession(session)
       setUser(session?.user ?? null)
 
       if (session?.user) {
-        await fetchProfile(session.user.id)
+        try {
+          await fetchProfile(session.user.id)
+        } catch (error) {
+          console.error('🔍 [AuthContext] Error in auth state change profile fetch:', error)
+          setProfile(null)
+          setLoading(false)
+        }
       } else {
+        console.log('🔍 [AuthContext] No session user, clearing profile')
         setProfile(null)
         setLoading(false)
       }
@@ -62,6 +70,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const fetchProfile = async (userId: string) => {
+    const startTime = Date.now()
+    const timeoutId = setTimeout(() => {
+      console.error('🔍 [AuthContext] Profile fetch timed out after 10 seconds')
+      setProfile(null)
+      setLoading(false)
+    }, 10000)
+
     try {
       console.log('🔍 [AuthContext] Fetching profile for user:', userId)
       
@@ -117,7 +132,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error("🔍 [AuthContext] Exception while fetching profile:", error)
       setProfile(null)
     } finally {
-      console.log('🔍 [AuthContext] Profile fetch completed, setting loading to false')
+      clearTimeout(timeoutId)
+      const elapsed = Date.now() - startTime
+      console.log(`🔍 [AuthContext] Profile fetch completed in ${elapsed}ms, setting loading to false`)
       setLoading(false)
     }
   }
