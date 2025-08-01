@@ -81,6 +81,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log('🔍 [AuthContext] Fetching profile for user:', userId)
       
+      // EXACT SQL QUERIES - RUN THESE IN YOUR DATABASE
+      console.log('🔍 [AuthContext] ===== EXACT SQL QUERIES TO RUN =====')
+      console.log('🔍 [AuthContext] Query 1 (Raw): SELECT * FROM user_profiles WHERE id = \'' + userId + '\';')
+      console.log('🔍 [AuthContext] Query 2 (Role only): SELECT role FROM user_profiles WHERE id = \'' + userId + '\';')
+      console.log('🔍 [AuthContext] Query 3 (Explicit): SELECT id, email, first_name, last_name, role, created_at, updated_at FROM user_profiles WHERE id = \'' + userId + '\';')
+      console.log('🔍 [AuthContext] ===========================================')
+      
       // First, let's try a raw query to see what Supabase can access
       const { data: rawData, error: rawError } = await supabase
         .from("user_profiles")

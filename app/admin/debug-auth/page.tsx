@@ -35,6 +35,10 @@ export default function DebugAuthPage() {
 
   const makeUserAdmin = async (userId: string) => {
     try {
+      console.log('🔍 [DebugAuth] ===== EXACT SQL UPDATE QUERY =====')
+      console.log('🔍 [DebugAuth] UPDATE user_profiles SET role = \'admin\' WHERE id = \'' + userId + '\';')
+      console.log('🔍 [DebugAuth] ===========================================')
+      
       const { data, error } = await supabase
         .from('user_profiles')
         .update({ role: 'admin' })
@@ -55,16 +59,46 @@ export default function DebugAuthPage() {
     }
   }
 
+  const testDirectQuery = async () => {
+    if (!user?.id) {
+      alert('No user ID available')
+      return
+    }
+    
+    console.log('🔍 [DebugAuth] ===== TESTING DIRECT DATABASE QUERY =====')
+    console.log('🔍 [DebugAuth] User ID:', user.id)
+    console.log('🔍 [DebugAuth] Running: SELECT * FROM user_profiles WHERE id = \'' + user.id + '\';')
+    
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+      
+      console.log('🔍 [DebugAuth] Direct query result:', { data, error })
+      alert(`Direct query result:\nData: ${JSON.stringify(data, null, 2)}\nError: ${error ? JSON.stringify(error) : 'None'}`)
+    } catch (err) {
+      console.error('🔍 [DebugAuth] Direct query exception:', err)
+      alert('Exception: ' + err)
+    }
+  }
+
   useEffect(() => {
     fetchAllProfiles()
   }, [])
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Auth Debug</h1>
-        <p className="text-gray-600">Debug authentication and profile issues</p>
-      </div>
+             <div>
+         <h1 className="text-3xl font-bold">Auth Debug</h1>
+         <p className="text-gray-600">Debug authentication and profile issues</p>
+         <div className="mt-4 space-x-2">
+           <Button onClick={testDirectQuery} variant="outline">
+             Test Direct DB Query
+           </Button>
+         </div>
+       </div>
 
       {/* Current User Info */}
       <Card>
