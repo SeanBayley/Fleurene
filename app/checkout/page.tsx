@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useCart } from '@/components/cart/cart-provider'
 import { useAuth } from '@/components/auth-context'
 import { Button } from '@/components/ui/button'
@@ -52,6 +52,7 @@ const CHECKOUT_STEPS = [
 
 export default function CheckoutPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user, profile } = useAuth()
   const { items, totalItems, totalPrice, totalSavings, validateCart, clearCart } = useCart()
   const [currentStep, setCurrentStep] = useState(1)
@@ -127,6 +128,20 @@ export default function CheckoutPage() {
     }
   }, [])
 
+  // Check for payment status on mount
+  useEffect(() => {
+    const paymentStatus = searchParams.get('payment')
+    const orderId = searchParams.get('order')
+    
+    if (paymentStatus === 'cancelled' && orderId) {
+      toast.error('Payment was cancelled. You can try again below.')
+      setCurrentStep(3) // Show payment step
+    } else if (paymentStatus === 'failed' && orderId) {
+      toast.error('Payment failed. Please try again or contact support.')
+      setCurrentStep(3) // Show payment step
+    }
+  }, [searchParams])
+
   // Redirect if cart is empty
   useEffect(() => {
     if (items.length === 0) {
@@ -194,7 +209,7 @@ export default function CheckoutPage() {
     setIsLoading(true)
 
     try {
-      // Create the order
+      // Create the order first
       const response = await fetch('/api/orders/create', {
         method: 'POST',
         headers: {
@@ -220,21 +235,36 @@ export default function CheckoutPage() {
         throw new Error(errorMessage)
       }
 
-      // Order created successfully
-      toast.success(`Order ${result.order.order_number} created successfully!`)
+      // Order created successfully, now initialize Payfast payment
+      const paymentResponse = await fetch('/api/payments/payfast/initialize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderId: result.order.id,
+          amount: finalTotal,
+          description: `Order #${result.order.order_number}`,
+          email: shippingInfo.email,
+          firstName: shippingInfo.firstName,
+          lastName: shippingInfo.lastName
+        })
+      })
+
+      const paymentResult = await paymentResponse.json()
+
+      if (!paymentResponse.ok) {
+        throw new Error(paymentResult.error || 'Failed to initialize payment')
+      }
+
+      // Track purchase attempt
+      analytics.trackPageView('payment_initiated')
       
-      // Track purchase event
-      analytics.trackPurchase(
-        result.order.order_number,
-        finalTotal,
-        items.length
-      )
-      
-      // Clear the cart
+      // Clear the cart before redirecting to payment
       await clearCart()
       
-      // Move to confirmation step
-      setCurrentStep(4)
+      // Create and submit the payment form
+      submitPayfastForm(paymentResult.paymentUrl, paymentResult.paymentData)
       
     } catch (error) {
       console.error('Error placing order:', error)
@@ -242,6 +272,27 @@ export default function CheckoutPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const submitPayfastForm = (paymentUrl: string, paymentData: Record<string, any>) => {
+    // Create a form and submit it to Payfast
+    const form = document.createElement('form')
+    form.method = 'POST'
+    form.action = paymentUrl
+    form.style.display = 'none'
+
+    // Add all payment data as hidden inputs
+    Object.keys(paymentData).forEach(key => {
+      const input = document.createElement('input')
+      input.type = 'hidden'
+      input.name = key
+      input.value = paymentData[key]
+      form.appendChild(input)
+    })
+
+    // Add form to document and submit
+    document.body.appendChild(form)
+    form.submit()
   }
 
   const calculateShipping = () => {
