@@ -188,7 +188,8 @@ function generatePayfastSignature(data: Record<string, any>, passphrase?: string
   // Process fields in Payfast attribute order - SAME encoding for ALL fields
   for (const key of payfastFieldOrder) {
     if (data.hasOwnProperty(key) && data[key] !== '' && data[key] !== null && data[key] !== undefined) {
-      const val = data[key].toString().trim()
+      // Don't use toString() - could affect URL handling!
+      const val = String(data[key]).trim()
       // Use identical encoding for ALL fields (URL and non-URL)
       pfOutput += `${key}=${encodeURIComponent(val).replace(/%20/g, '+')}&`
     }
