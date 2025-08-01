@@ -193,9 +193,9 @@ function generatePayfastSignature(data: Record<string, any>, passphrase?: string
     if (data.hasOwnProperty(key) && data[key] !== '' && data[key] !== null && data[key] !== undefined) {
       const val = data[key].toString().trim()
       
-      // Special encoding for URL fields: must be UPPERCASE
+      // Special encoding for URL fields: encodeURIComponent already produces uppercase hex
       if (urlFields.includes(key)) {
-        const encodedVal = encodeURIComponent(val).replace(/%20/g, '+').toUpperCase()
+        const encodedVal = encodeURIComponent(val).replace(/%20/g, '+')
         pfOutput += `${key}=${encodedVal}&`
       } else {
         // Standard encoding for non-URL fields
