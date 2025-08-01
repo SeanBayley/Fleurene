@@ -7,8 +7,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
-    // Use the exact data from your payment
-    const paymentData = {
+    // Use data from request or fallback to default
+    const paymentData = body.testData || {
       merchant_id: '10040872',
       merchant_key: '0hhk76lcagavz',
       return_url: 'https://fleurene.vercel.app/checkout/confirmation?payment=success&order=c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
@@ -24,14 +24,26 @@ export async function POST(request: NextRequest) {
       custom_str1: 'c49cfe3cfa0a48399073331bc73fbcc5',
       custom_str2: '202508010004'
     }
+    
+    const customPassphrase = body.passphrase
 
-    // Test with different passphrase scenarios
+    // Test with different methods and passphrase scenarios
     const results = []
 
-    // Test 1: No passphrase
-    const sig1 = generateDebugSignature(paymentData)
+    // Test with provided passphrase first
+    if (customPassphrase !== undefined) {
+      const sig0 = generateDebugSignature(paymentData, customPassphrase)
+      results.push({
+        method: `Server: With your passphrase "${customPassphrase || 'empty'}"`,
+        signature: sig0.signature,
+        paramString: sig0.paramString
+      })
+    }
+
+    // Test 1: No passphrase (null)
+    const sig1 = generateDebugSignature(paymentData, undefined)
     results.push({
-      scenario: 'No passphrase',
+      method: 'Server: No passphrase (null)',
       signature: sig1.signature,
       paramString: sig1.paramString
     })
@@ -39,17 +51,32 @@ export async function POST(request: NextRequest) {
     // Test 2: Empty passphrase
     const sig2 = generateDebugSignature(paymentData, '')
     results.push({
-      scenario: 'Empty passphrase',
+      method: 'Server: Empty passphrase ("")',
       signature: sig2.signature,
       paramString: sig2.paramString
     })
 
-    // Test 3: Common test passphrases
-    const testPassphrases = ['test', 'sandbox', 'payfast']
+    // Test 3: Method variations with same data
+    const altSig1 = generateDebugSignatureAlt1(paymentData, customPassphrase)
+    results.push({
+      method: 'Server: Standard URL Encoding Method',
+      signature: altSig1.signature,
+      paramString: altSig1.paramString
+    })
+
+    const altSig2 = generateDebugSignatureAlt2(paymentData, customPassphrase)
+    results.push({
+      method: 'Server: Sorted Keys Method',
+      signature: altSig2.signature,
+      paramString: altSig2.paramString
+    })
+
+    // Test common passphrases
+    const testPassphrases = ['test', 'sandbox', 'payfast', 'jt7NOE43FZPn']
     for (const passphrase of testPassphrases) {
       const sig = generateDebugSignature(paymentData, passphrase)
       results.push({
-        scenario: `Passphrase: "${passphrase}"`,
+        method: `Server: Passphrase "${passphrase}"`,
         signature: sig.signature,
         paramString: sig.paramString
       })
@@ -95,5 +122,51 @@ function generateDebugSignature(data: Record<string, any>, passphrase?: string):
   // Generate MD5 hash
   const signature = crypto.createHash('md5').update(getString).digest('hex')
   
+  return { signature, paramString: getString }
+}
+
+// Alternative method 1: Standard URL encoding (no + replacement)
+function generateDebugSignatureAlt1(data: Record<string, any>, passphrase?: string): { signature: string, paramString: string } {
+  let pfOutput = ''
+  
+  for (let key in data) {
+    if (data.hasOwnProperty(key)) {
+      if (data[key] !== '' && data[key] !== null && data[key] !== undefined) {
+        const val = data[key].toString().trim()
+        pfOutput += `${key}=${encodeURIComponent(val)}&`
+      }
+    }
+  }
+  
+  let getString = pfOutput.slice(0, -1)
+  
+  if (passphrase !== null && passphrase !== undefined && passphrase.trim()) {
+    getString += `&passphrase=${encodeURIComponent(passphrase.trim())}`
+  }
+
+  const signature = crypto.createHash('md5').update(getString).digest('hex')
+  return { signature, paramString: getString }
+}
+
+// Alternative method 2: Sorted keys + form encoding
+function generateDebugSignatureAlt2(data: Record<string, any>, passphrase?: string): { signature: string, paramString: string } {
+  let pfOutput = ''
+  
+  const sortedKeys = Object.keys(data)
+    .filter(key => data[key] !== '' && data[key] !== null && data[key] !== undefined)
+    .sort()
+  
+  for (const key of sortedKeys) {
+    const val = data[key].toString().trim()
+    pfOutput += `${key}=${encodeURIComponent(val).replace(/%20/g, '+')}&`
+  }
+  
+  let getString = pfOutput.slice(0, -1)
+  
+  if (passphrase !== null && passphrase !== undefined && passphrase.trim()) {
+    getString += `&passphrase=${encodeURIComponent(passphrase.trim()).replace(/%20/g, '+')}`
+  }
+
+  const signature = crypto.createHash('md5').update(getString).digest('hex')
   return { signature, paramString: getString }
 }
