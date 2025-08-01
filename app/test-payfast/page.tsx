@@ -12,8 +12,8 @@ export default function PayfastTestPage() {
   const [testData, setTestData] = useState({
     merchant_id: '10040872',
     merchant_key: '0hhk76lcagavz',
-    return_url: 'https://fleurene.vercel.app/checkout/confirmation?payment=success&order=c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
-    cancel_url: 'https://fleurene.vercel.app/checkout?payment=cancelled&order=c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
+    return_url: 'https://fleurene.vercel.app/checkout/confirmation/success/c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
+    cancel_url: 'https://fleurene.vercel.app/checkout/cancelled/c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
     notify_url: 'https://fleurene.vercel.app/api/payments/payfast/webhook',
     m_payment_id: 'c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
     amount: '75.10',
@@ -317,9 +317,9 @@ export default function PayfastTestPage() {
                       merchant_key: '46f0cd694581a',
                       amount: '100.00',
                       item_name: 'Test Order',
-                      return_url: 'https://example.com/return',
-                      cancel_url: 'https://example.com/cancel',
-                      notify_url: 'https://example.com/notify'
+                      return_url: 'https://example.com/checkout/confirmation/success/test123',
+                      cancel_url: 'https://example.com/checkout/cancelled/test123',
+                      notify_url: 'https://example.com/api/payments/payfast/webhook'
                     })
                     setPassphrase('')
                   }}
@@ -334,8 +334,8 @@ export default function PayfastTestPage() {
                     setTestData({
                       merchant_id: '10040872',
                       merchant_key: '0hhk76lcagavz',
-                      return_url: 'https://fleurene.vercel.app/checkout/confirmation?payment=success&order=c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
-                      cancel_url: 'https://fleurene.vercel.app/checkout?payment=cancelled&order=c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
+                      return_url: 'https://fleurene.vercel.app/checkout/confirmation/success/c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
+                      cancel_url: 'https://fleurene.vercel.app/checkout/cancelled/c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
                       notify_url: 'https://fleurene.vercel.app/api/payments/payfast/webhook',
                       m_payment_id: 'c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
                       amount: '75.10',
@@ -381,8 +381,8 @@ export default function PayfastTestPage() {
                     setTestData({
                       merchant_id: '10040872',
                       merchant_key: '0hhk76lcagavz',
-                      return_url: 'https://fleurene.vercel.app/checkout/confirmation?payment=success&order=c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
-                      cancel_url: 'https://fleurene.vercel.app/checkout?payment=cancelled&order=c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
+                      return_url: 'https://fleurene.vercel.app/checkout/confirmation/success/c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
+                      cancel_url: 'https://fleurene.vercel.app/checkout/cancelled/c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
                       notify_url: 'https://fleurene.vercel.app/api/payments/payfast/webhook',
                       m_payment_id: 'c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
                       amount: '75.10',
@@ -405,8 +405,8 @@ export default function PayfastTestPage() {
                     setTestData({
                       merchant_id: '10040872',
                       merchant_key: '0hhk76lcagavz',
-                      return_url: 'https://fleurene.vercel.app/checkout/confirmation?payment=success&order=c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
-                      cancel_url: 'https://fleurene.vercel.app/checkout?payment=cancelled&order=c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
+                      return_url: 'https://fleurene.vercel.app/checkout/confirmation/success/c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
+                      cancel_url: 'https://fleurene.vercel.app/checkout/cancelled/c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
                       notify_url: 'https://fleurene.vercel.app/api/payments/payfast/webhook',
                       m_payment_id: 'c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
                       amount: '75.10',

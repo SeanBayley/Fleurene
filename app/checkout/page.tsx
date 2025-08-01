@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useCart } from '@/components/cart/cart-provider'
 import { useAuth } from '@/components/auth-context'
 import { Button } from '@/components/ui/button'
@@ -50,9 +50,8 @@ const CHECKOUT_STEPS = [
   { id: 4, title: 'Confirmation', icon: Package }
 ]
 
-// Component that handles search params (needs Suspense)
-function CheckoutWithSearchParams() {
-  const searchParams = useSearchParams()
+// Main checkout component
+function CheckoutComponent() {
   const router = useRouter()
   const { user, profile } = useAuth()
   const { items, totalItems, totalPrice, totalSavings, validateCart, clearCart } = useCart()
@@ -129,19 +128,9 @@ function CheckoutWithSearchParams() {
     }
   }, [])
 
-  // Check for payment status on mount
-  useEffect(() => {
-    const paymentStatus = searchParams.get('payment')
-    const orderId = searchParams.get('order')
-    
-    if (paymentStatus === 'cancelled' && orderId) {
-      toast.error('Payment was cancelled. You can try again below.')
-      setCurrentStep(3) // Show payment step
-    } else if (paymentStatus === 'failed' && orderId) {
-      toast.error('Payment failed. Please try again or contact support.')
-      setCurrentStep(3) // Show payment step
-    }
-  }, [searchParams])
+  // Note: Payment status handling now uses dedicated routes:
+  // /checkout/confirmation/success/[orderId] - for successful payments
+  // /checkout/cancelled/[orderId] - for cancelled payments
 
   // Redirect if cart is empty
   useEffect(() => {
@@ -821,18 +810,7 @@ function CheckoutWithSearchParams() {
   )
 }
 
-// Main page component with Suspense wrapper
+// Main page component
 export default function CheckoutPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading checkout...</p>
-        </div>
-      </div>
-    }>
-      <CheckoutWithSearchParams />
-    </Suspense>
-  )
+  return <CheckoutComponent />
 } 

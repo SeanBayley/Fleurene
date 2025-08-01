@@ -80,8 +80,8 @@ export async function POST(request: NextRequest) {
     const paymentData = {
       merchant_id: merchantId,
       merchant_key: merchantKey,
-      return_url: `${baseUrl}/checkout/confirmation?payment=success&order=${orderId}`,
-      cancel_url: `${baseUrl}/checkout?payment=cancelled&order=${orderId}`,
+      return_url: `${baseUrl}/checkout/confirmation/success/${orderId}`,
+      cancel_url: `${baseUrl}/checkout/cancelled/${orderId}`,
       notify_url: `${baseUrl}/api/payments/payfast/webhook`,
       
       // Payment details
@@ -176,21 +176,12 @@ function generatePayfastSignature(data: Record<string, any>, passphrase?: string
   
   let pfOutput = ''
   
-  // URL fields that need proper encoding to avoid breaking parameter parsing
-  const urlFields = ['return_url', 'cancel_url', 'notify_url']
-  
-  // Process fields in Payfast attribute order
+  // Process fields in Payfast attribute order - same encoding for ALL fields
   for (const key of payfastFieldOrder) {
     if (data.hasOwnProperty(key) && data[key] !== '' && data[key] !== null && data[key] !== undefined) {
       const val = String(data[key]).trim()
-      
-      if (urlFields.includes(key)) {
-        // URLs MUST be encoded to prevent & and ? from breaking parameter parsing
-        pfOutput += `${key}=${encodeURIComponent(val).replace(/%20/g, '+')}&`
-      } else {
-        // Non-URL fields use minimal encoding
-        pfOutput += `${key}=${val.replace(/&/g, '%26').replace(/ /g, '+')}&`
-      }
+      // Use form encoding for ALL fields (spaces as +)
+      pfOutput += `${key}=${encodeURIComponent(val).replace(/%20/g, '+')}&`
     }
   }
   
