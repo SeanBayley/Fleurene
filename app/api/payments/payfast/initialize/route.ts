@@ -145,6 +145,7 @@ export async function POST(request: NextRequest) {
 function generatePayfastSignature(data: Record<string, any>, passphrase?: string): string {
   // CRITICAL: Use Payfast attribute description order, NOT alphabetical!
   // From Payfast docs: "pairs must be listed in the order in which they appear in the attributes description"
+  // BACK TO ORIGINAL ORDER - non-URL case was working!
   const payfastFieldOrder = [
     'merchant_id',
     'merchant_key', 
@@ -154,10 +155,10 @@ function generatePayfastSignature(data: Record<string, any>, passphrase?: string
     'name_first',
     'name_last',
     'email_address',
-    'cell_number',
-    'm_payment_id',
-    'amount',
-    'item_name',
+    'cell_number',         // Back to position 9
+    'm_payment_id',        // Back to position 10  
+    'amount',              // Back to position 11
+    'item_name',           // Back to position 12
     'item_description',
     'custom_int1',
     'custom_int2',
@@ -175,13 +176,21 @@ function generatePayfastSignature(data: Record<string, any>, passphrase?: string
   
   let pfOutput = ''
   
-  // Process fields in Payfast attribute order - SAME encoding for ALL fields
+  // URL fields that need proper encoding to avoid breaking parameter parsing
+  const urlFields = ['return_url', 'cancel_url', 'notify_url']
+  
+  // Process fields in Payfast attribute order
   for (const key of payfastFieldOrder) {
     if (data.hasOwnProperty(key) && data[key] !== '' && data[key] !== null && data[key] !== undefined) {
-      // Don't use toString() - could affect URL handling!
       const val = String(data[key]).trim()
-      // Use identical encoding for ALL fields (URL and non-URL)
-      pfOutput += `${key}=${encodeURIComponent(val).replace(/%20/g, '+')}&`
+      
+      if (urlFields.includes(key)) {
+        // URLs MUST be encoded to prevent & and ? from breaking parameter parsing
+        pfOutput += `${key}=${encodeURIComponent(val).replace(/%20/g, '+')}&`
+      } else {
+        // Non-URL fields use minimal encoding
+        pfOutput += `${key}=${val.replace(/&/g, '%26').replace(/ /g, '+')}&`
+      }
     }
   }
   
