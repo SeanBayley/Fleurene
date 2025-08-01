@@ -201,6 +201,30 @@ export default function PayfastTestPage() {
                 >
                   {isLoading ? 'Testing...' : 'Test Signatures'}
                 </Button>
+                
+                <Button 
+                  onClick={async () => {
+                    setIsLoading(true)
+                    try {
+                      const response = await fetch('/api/payments/payfast/debug-name', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({})
+                      })
+                      const nameResults = await response.json()
+                      setResults(nameResults.results || [])
+                    } catch (error) {
+                      console.error('Name debug error:', error)
+                    } finally {
+                      setIsLoading(false)
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="w-full"
+                  variant="secondary"
+                >
+                  🔍 Debug Name Field Issue
+                </Button>
               </CardContent>
             </Card>
 
@@ -326,6 +350,55 @@ export default function PayfastTestPage() {
                   }}
                 >
                   Load Your Actual Data
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => {
+                    setTestData({
+                      merchant_id: '10040872',
+                      merchant_key: '0hhk76lcagavz',
+                      return_url: 'https://fleurene.vercel.app/checkout/confirmation?payment=success&order=c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
+                      cancel_url: 'https://fleurene.vercel.app/checkout?payment=cancelled&order=c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
+                      notify_url: 'https://fleurene.vercel.app/api/payments/payfast/webhook',
+                      m_payment_id: 'c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
+                      amount: '75.10',
+                      item_name: 'Order 20250801-0004',
+                      item_description: 'Payment for order 20250801-0004',
+                      email_address: 'seanjbayley@gmail.com',
+                      custom_str1: 'c49cfe3cfa0a48399073331bc73fbcc5',
+                      custom_str2: '202508010004'
+                    })
+                  }}
+                >
+                  Load Data WITHOUT Names
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => {
+                    // Test if it's specific to "Sean" or any name
+                    setTestData({
+                      merchant_id: '10040872',
+                      merchant_key: '0hhk76lcagavz',
+                      return_url: 'https://fleurene.vercel.app/checkout/confirmation?payment=success&order=c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
+                      cancel_url: 'https://fleurene.vercel.app/checkout?payment=cancelled&order=c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
+                      notify_url: 'https://fleurene.vercel.app/api/payments/payfast/webhook',
+                      m_payment_id: 'c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
+                      amount: '75.10',
+                      item_name: 'Order 20250801-0004',
+                      item_description: 'Payment for order 20250801-0004',
+                      name_first: 'John',
+                      name_last: 'Doe', 
+                      email_address: 'seanjbayley@gmail.com',
+                      custom_str1: 'c49cfe3cfa0a48399073331bc73fbcc5',
+                      custom_str2: '202508010004'
+                    })
+                  }}
+                >
+                  Test with "John Doe"
                 </Button>
               </CardContent>
             </Card>

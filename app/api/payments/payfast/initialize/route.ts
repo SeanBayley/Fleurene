@@ -143,16 +143,43 @@ export async function POST(request: NextRequest) {
 }
 
 function generatePayfastSignature(data: Record<string, any>, passphrase?: string): string {
-  // Create parameter string exactly like Node.js documentation
+  // CRITICAL: Use Payfast attribute description order, NOT alphabetical!
+  // From Payfast docs: "pairs must be listed in the order in which they appear in the attributes description"
+  const payfastFieldOrder = [
+    'merchant_id',
+    'merchant_key', 
+    'return_url',
+    'cancel_url',
+    'notify_url',
+    'name_first',
+    'name_last',
+    'email_address',
+    'cell_number',
+    'm_payment_id',
+    'amount',
+    'item_name',
+    'item_description',
+    'custom_int1',
+    'custom_int2',
+    'custom_int3',
+    'custom_int4',
+    'custom_int5',
+    'custom_str1',
+    'custom_str2',
+    'custom_str3',
+    'custom_str4',
+    'custom_str5',
+    'payment_method',
+    'subscription_type'
+  ]
+  
   let pfOutput = ''
   
-  // Process all keys (don't sort yet - process in object order first)
-  for (let key in data) {
-    if (data.hasOwnProperty(key)) {
-      if (data[key] !== '' && data[key] !== null && data[key] !== undefined) {
-        const val = data[key].toString().trim()
-        pfOutput += `${key}=${encodeURIComponent(val).replace(/%20/g, '+')}&`
-      }
+  // Process fields in Payfast attribute order
+  for (const key of payfastFieldOrder) {
+    if (data.hasOwnProperty(key) && data[key] !== '' && data[key] !== null && data[key] !== undefined) {
+      const val = data[key].toString().trim()
+      pfOutput += `${key}=${encodeURIComponent(val).replace(/%20/g, '+')}&`
     }
   }
   
@@ -164,7 +191,7 @@ function generatePayfastSignature(data: Record<string, any>, passphrase?: string
     getString += `&passphrase=${encodeURIComponent(passphrase.trim()).replace(/%20/g, '+')}`
   }
 
-  console.log('Payfast signature string:', getString)
+  console.log('Payfast signature string (correct field order):', getString)
 
   // Generate MD5 hash
   const signature = crypto.createHash('md5').update(getString).digest('hex')
