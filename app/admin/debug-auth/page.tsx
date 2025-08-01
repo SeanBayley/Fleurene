@@ -8,9 +8,23 @@ import { useAuth } from '@/components/auth-context'
 import { supabase } from '@/lib/supabase'
 
 export default function DebugAuthPage() {
-  const { user, profile, loading } = useAuth()
+  const { user, profile, loading, forceRefresh } = useAuth()
   const [allProfiles, setAllProfiles] = useState<any[]>([])
   const [loadingProfiles, setLoadingProfiles] = useState(false)
+  const [pageLoadTime, setPageLoadTime] = useState<number>(Date.now())
+
+  // AGGRESSIVE DEBUGGING - Log every render
+  console.log('🔍 [DebugAuth] ===== PAGE RENDER =====')
+  console.log('🔍 [DebugAuth] Page load time:', new Date(pageLoadTime).toISOString())
+  console.log('🔍 [DebugAuth] Current state:', {
+    hasUser: !!user,
+    userId: user?.id,
+    profileLoaded: profile !== undefined,
+    profileRole: profile?.role,
+    loading,
+    allProfilesCount: allProfiles.length
+  })
+  console.log('🔍 [DebugAuth] ========================')
 
   const fetchAllProfiles = async () => {
     setLoadingProfiles(true)
@@ -84,20 +98,92 @@ export default function DebugAuthPage() {
     }
   }
 
+  const forceRefreshPage = () => {
+    console.log('🔍 [DebugAuth] Force refreshing page...')
+    window.location.reload()
+  }
+
+  const resetAuthState = () => {
+    console.log('🔍 [DebugAuth] Resetting auth state...')
+    setPageLoadTime(Date.now())
+    setAllProfiles([])
+    setLoadingProfiles(false)
+  }
+
+  const manualProfileFetch = async () => {
+    if (!user?.id) {
+      alert('No user ID available')
+      return
+    }
+
+    console.log('🔍 [DebugAuth] ===== MANUAL PROFILE FETCH =====')
+    console.log('🔍 [DebugAuth] Bypassing auth context, fetching directly...')
+    
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+      
+      console.log('🔍 [DebugAuth] Manual fetch result:', { data, error })
+      
+      if (data) {
+        alert(`Manual fetch SUCCESS:\nRole: ${data.role}\nFull data: ${JSON.stringify(data, null, 2)}`)
+      } else {
+        alert(`Manual fetch FAILED:\nError: ${JSON.stringify(error)}`)
+      }
+    } catch (err) {
+      console.error('🔍 [DebugAuth] Manual fetch exception:', err)
+      alert('Manual fetch exception: ' + err)
+    }
+  }
+
   useEffect(() => {
+    console.log('🔍 [DebugAuth] useEffect triggered - fetching profiles')
     fetchAllProfiles()
   }, [])
+
+  // MONITOR AUTH STATE CHANGES
+  useEffect(() => {
+    console.log('🔍 [DebugAuth] Auth state changed:', {
+      hasUser: !!user,
+      userId: user?.id,
+      profileLoaded: profile !== undefined,
+      profileRole: profile?.role,
+      loading
+    })
+
+    // If we have a user but no profile after 5 seconds, something is wrong
+    if (user && !profile && !loading) {
+      const timeout = setTimeout(() => {
+        console.error('🔍 [DebugAuth] WARNING: User exists but no profile loaded after 5 seconds!')
+        console.error('🔍 [DebugAuth] This indicates a stuck auth state')
+      }, 5000)
+
+      return () => clearTimeout(timeout)
+    }
+  }, [user, profile, loading])
 
   return (
     <div className="space-y-6">
              <div>
          <h1 className="text-3xl font-bold">Auth Debug</h1>
          <p className="text-gray-600">Debug authentication and profile issues</p>
-         <div className="mt-4 space-x-2">
-           <Button onClick={testDirectQuery} variant="outline">
-             Test Direct DB Query
-           </Button>
-         </div>
+                   <div className="mt-4 space-x-2">
+            <Button onClick={testDirectQuery} variant="outline">
+              Test Direct DB Query
+            </Button>
+            <Button onClick={forceRefreshPage} variant="outline" className="bg-red-100 text-red-700">
+              Force Refresh Page
+            </Button>
+            <Button onClick={resetAuthState} variant="outline" className="bg-yellow-100 text-yellow-700">
+              Reset Page State
+            </Button>
+            <Button onClick={manualProfileFetch} variant="outline" className="bg-green-100 text-green-700">
+              Manual Profile Fetch
+            </Button>
+          </div>
        </div>
 
       {/* Current User Info */}
