@@ -141,26 +141,32 @@ export async function POST(request: NextRequest) {
 }
 
 function generatePayfastSignature(data: Record<string, any>, passphrase?: string): string {
-  // Create parameter string - Payfast requires specific encoding
-  const sortedParams = Object.keys(data)
+  // Create parameter string exactly like PHP documentation
+  let pfOutput = ''
+  
+  // Sort keys alphabetically (like PHP ksort)
+  const sortedKeys = Object.keys(data)
     .filter(key => key !== 'signature' && data[key] !== '' && data[key] !== null && data[key] !== undefined)
     .sort()
-    .map(key => {
-      // Use urlencode format that Payfast expects (no double encoding)
-      const value = data[key].toString().trim()
-      return `${key}=${value}`
-    })
-    .join('&')
+  
+  // Build parameter string like PHP: key=urlencode(trim(val))&
+  for (const key of sortedKeys) {
+    const val = data[key].toString().trim()
+    pfOutput += `${key}=${encodeURIComponent(val)}&`
+  }
+  
+  // Remove last ampersand (like PHP substr($pfOutput, 0, -1))
+  let getString = pfOutput.slice(0, -1)
+  
+  // Add passphrase if provided (like PHP documentation)
+  if (passphrase && passphrase.trim()) {
+    getString += `&passphrase=${encodeURIComponent(passphrase.trim())}`
+  }
 
-  // Add passphrase if provided and not empty
-  const paramString = (passphrase && passphrase.trim()) 
-    ? `${sortedParams}&passphrase=${passphrase.trim()}` 
-    : sortedParams
-
-  console.log('Payfast signature string:', paramString)
+  console.log('Payfast signature string:', getString)
 
   // Generate MD5 hash
-  const signature = crypto.createHash('md5').update(paramString).digest('hex')
+  const signature = crypto.createHash('md5').update(getString).digest('hex')
   console.log('Generated signature:', signature)
   
   return signature

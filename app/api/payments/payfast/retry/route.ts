@@ -134,21 +134,28 @@ export async function POST(request: NextRequest) {
 }
 
 function generatePayfastSignature(data: Record<string, any>, passphrase?: string): string {
-  // Create parameter string - match the encoding from initialize
-  const sortedParams = Object.keys(data)
+  // Create parameter string exactly like PHP documentation
+  let pfOutput = ''
+  
+  // Sort keys alphabetically (like PHP ksort)
+  const sortedKeys = Object.keys(data)
     .filter(key => key !== 'signature' && data[key] !== '' && data[key] !== null && data[key] !== undefined)
     .sort()
-    .map(key => {
-      const value = data[key].toString().trim()
-      return `${key}=${value}`
-    })
-    .join('&')
-
-  // Add passphrase if provided and not empty
-  const paramString = (passphrase && passphrase.trim()) 
-    ? `${sortedParams}&passphrase=${passphrase.trim()}` 
-    : sortedParams
+  
+  // Build parameter string like PHP: key=urlencode(trim(val))&
+  for (const key of sortedKeys) {
+    const val = data[key].toString().trim()
+    pfOutput += `${key}=${encodeURIComponent(val)}&`
+  }
+  
+  // Remove last ampersand (like PHP substr($pfOutput, 0, -1))
+  let getString = pfOutput.slice(0, -1)
+  
+  // Add passphrase if provided (like PHP documentation)
+  if (passphrase && passphrase.trim()) {
+    getString += `&passphrase=${encodeURIComponent(passphrase.trim())}`
+  }
 
   // Generate MD5 hash
-  return crypto.createHash('md5').update(paramString).digest('hex')
+  return crypto.createHash('md5').update(getString).digest('hex')
 }
