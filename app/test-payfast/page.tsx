@@ -349,7 +349,29 @@ export default function PayfastTestPage() {
                     })
                   }}
                 >
-                  Load Your Actual Data
+                  🌐 Load Your Data (WITH URLs)
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  className="w-full bg-yellow-50"
+                  onClick={() => {
+                    setTestData({
+                      merchant_id: '10040872',
+                      merchant_key: '0hhk76lcagavz',
+                      m_payment_id: 'c49cfe3c-fa0a-4839-9073-331bc73fbcc5',
+                      amount: '75.10',
+                      item_name: 'Order 20250801-0004',
+                      item_description: 'Payment for order 20250801-0004',
+                      name_first: 'Sean',
+                      name_last: 'Bayley',
+                      email_address: 'seanjbayley@gmail.com',
+                      custom_str1: 'c49cfe3cfa0a48399073331bc73fbcc5',
+                      custom_str2: '202508010004'
+                    })
+                  }}
+                >
+                  🚫 Load Your Data (NO URLs)
                 </Button>
                 
                 <Button 

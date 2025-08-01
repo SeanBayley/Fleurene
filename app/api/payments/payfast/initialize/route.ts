@@ -173,24 +173,14 @@ function generatePayfastSignature(data: Record<string, any>, passphrase?: string
     'subscription_type'
   ]
   
-  // URL fields that need uppercase encoding
-  const urlFields = ['return_url', 'cancel_url', 'notify_url']
-  
   let pfOutput = ''
   
-  // Process fields in Payfast attribute order
+  // Process fields in Payfast attribute order - SAME encoding for ALL fields
   for (const key of payfastFieldOrder) {
     if (data.hasOwnProperty(key) && data[key] !== '' && data[key] !== null && data[key] !== undefined) {
       const val = data[key].toString().trim()
-      
-      // Special encoding for URL fields: encodeURIComponent already produces uppercase hex
-      if (urlFields.includes(key)) {
-        const encodedVal = encodeURIComponent(val).replace(/%20/g, '+')
-        pfOutput += `${key}=${encodedVal}&`
-      } else {
-        // Standard encoding for non-URL fields
-        pfOutput += `${key}=${encodeURIComponent(val).replace(/%20/g, '+')}&`
-      }
+      // Use identical encoding for ALL fields (URL and non-URL)
+      pfOutput += `${key}=${encodeURIComponent(val).replace(/%20/g, '+')}&`
     }
   }
   
