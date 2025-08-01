@@ -21,6 +21,7 @@ interface AuthContextType {
     questionCount: number,
   ) => Promise<{ error: any }>
   getUserQuizResults: () => Promise<{ data: any[]; error: any }>
+  forceRefresh: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -216,6 +217,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { data: data || [], error }
   }
 
+  const forceRefresh = () => {
+    console.log('🔍 [AuthContext] Force refreshing auth state')
+    window.location.reload()
+  }
+
   const value = {
     user,
     profile,
@@ -227,6 +233,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     updateProfile,
     saveQuizResult,
     getUserQuizResults,
+    forceRefresh,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -72,7 +72,7 @@ const adminNavItems = [
 ]
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
-  const { user, profile, loading, signOut } = useAuth()
+  const { user, profile, loading, signOut, forceRefresh } = useAuth()
   const router = useRouter()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   // Removed isAdmin state - we check profile?.role directly
@@ -121,7 +121,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       
       if (!user) {
         console.log(`🔐 [AdminLayout] No user found, redirecting to sign in`)
-        router.push('/?auth=signin&message=Please sign in to access admin area')
+        window.location.href = '/?auth=signin&message=Please sign in to access admin area'
         setChecking(false)
         clearTimeout(timeout)
         return
@@ -135,7 +135,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         clearTimeout(timeout)
       } else if (profile && profile.role !== 'admin') {
         console.log(`🔐 [AdminLayout] User is not admin, role:`, profile.role)
-        router.push('/?error=access_denied&message=Admin access required')
+        window.location.href = '/?error=access_denied&message=Admin access required'
         setChecking(false)
         clearTimeout(timeout)
       } else if (profile === null) {
@@ -160,7 +160,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const handleSignOut = async () => {
     await signOut()
-    router.push('/')
+    window.location.href = '/'
   }
 
   if (loading || checking || !profile) {
@@ -172,12 +172,20 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           {authError && (
             <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-600 text-sm">{authError}</p>
-              <button 
-                onClick={() => router.push('/')}
-                className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-              >
-                Return to Home
-              </button>
+              <div className="space-y-2">
+                <button 
+                  onClick={() => window.location.href = '/'}
+                  className="w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                >
+                  Return to Home
+                </button>
+                <button 
+                  onClick={forceRefresh}
+                  className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                  Force Refresh (Debug)
+                </button>
+              </div>
             </div>
           )}
         </div>
