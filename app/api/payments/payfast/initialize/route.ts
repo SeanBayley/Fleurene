@@ -103,13 +103,15 @@ export async function POST(request: NextRequest) {
     console.log('Payfast payment data:', paymentData)
 
     // Generate signature (don't include empty passphrase for sandbox)
-    const signature = generatePayfastSignature(paymentData, sandbox ? undefined : passphrase)
+    const signature = generatePayfastSignature(paymentData, sandbox ? null : passphrase)
     
-    // Add signature to payment data
+    // Add signature to payment data - CRITICAL: Use exact same data for signature and sending
     const paymentDataWithSignature = {
       ...paymentData,
       signature
     }
+
+    console.log('Final payment data being sent:', paymentDataWithSignature)
 
     // Update order with payment attempt
     await supabase
@@ -141,26 +143,25 @@ export async function POST(request: NextRequest) {
 }
 
 function generatePayfastSignature(data: Record<string, any>, passphrase?: string): string {
-  // Create parameter string exactly like PHP documentation
+  // Create parameter string exactly like Node.js documentation
   let pfOutput = ''
   
-  // Sort keys alphabetically (like PHP ksort)
-  const sortedKeys = Object.keys(data)
-    .filter(key => key !== 'signature' && data[key] !== '' && data[key] !== null && data[key] !== undefined)
-    .sort()
-  
-  // Build parameter string like PHP: key=urlencode(trim(val))&
-  for (const key of sortedKeys) {
-    const val = data[key].toString().trim()
-    pfOutput += `${key}=${encodeURIComponent(val)}&`
+  // Process all keys (don't sort yet - process in object order first)
+  for (let key in data) {
+    if (data.hasOwnProperty(key)) {
+      if (data[key] !== '' && data[key] !== null && data[key] !== undefined) {
+        const val = data[key].toString().trim()
+        pfOutput += `${key}=${encodeURIComponent(val).replace(/%20/g, '+')}&`
+      }
+    }
   }
   
-  // Remove last ampersand (like PHP substr($pfOutput, 0, -1))
+  // Remove last ampersand
   let getString = pfOutput.slice(0, -1)
   
-  // Add passphrase if provided (like PHP documentation)
-  if (passphrase && passphrase.trim()) {
-    getString += `&passphrase=${encodeURIComponent(passphrase.trim())}`
+  // Add passphrase if provided
+  if (passphrase !== null && passphrase !== undefined && passphrase.trim()) {
+    getString += `&passphrase=${encodeURIComponent(passphrase.trim()).replace(/%20/g, '+')}`
   }
 
   console.log('Payfast signature string:', getString)

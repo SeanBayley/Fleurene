@@ -282,12 +282,14 @@ function CheckoutWithSearchParams() {
     form.action = paymentUrl
     form.style.display = 'none'
 
-    // Add all payment data as hidden inputs
+    console.log('Submitting to Payfast with data:', paymentData)
+
+    // Add all payment data as hidden inputs - CRITICAL: Send exact same data used for signature
     Object.keys(paymentData).forEach(key => {
       const input = document.createElement('input')
       input.type = 'hidden'
       input.name = key
-      input.value = paymentData[key]
+      input.value = paymentData[key].toString() // Ensure string conversion matches signature generation
       form.appendChild(input)
     })
 

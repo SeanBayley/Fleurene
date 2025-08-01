@@ -71,26 +71,25 @@ export async function POST(request: NextRequest) {
 }
 
 function generateDebugSignature(data: Record<string, any>, passphrase?: string): { signature: string, paramString: string } {
-  // Create parameter string exactly like PHP documentation
+  // Create parameter string exactly like Node.js documentation
   let pfOutput = ''
   
-  // Sort keys alphabetically (like PHP ksort)
-  const sortedKeys = Object.keys(data)
-    .filter(key => key !== 'signature' && data[key] !== '' && data[key] !== null && data[key] !== undefined)
-    .sort()
-  
-  // Build parameter string like PHP: key=urlencode(trim(val))&
-  for (const key of sortedKeys) {
-    const val = data[key].toString().trim()
-    pfOutput += `${key}=${encodeURIComponent(val)}&`
+  // Process all keys (don't sort - process in object order)
+  for (let key in data) {
+    if (data.hasOwnProperty(key)) {
+      if (data[key] !== '' && data[key] !== null && data[key] !== undefined) {
+        const val = data[key].toString().trim()
+        pfOutput += `${key}=${encodeURIComponent(val).replace(/%20/g, '+')}&`
+      }
+    }
   }
   
-  // Remove last ampersand (like PHP substr($pfOutput, 0, -1))
+  // Remove last ampersand
   let getString = pfOutput.slice(0, -1)
   
-  // Add passphrase if provided (like PHP documentation)
-  if (passphrase && passphrase.trim()) {
-    getString += `&passphrase=${encodeURIComponent(passphrase.trim())}`
+  // Add passphrase if provided
+  if (passphrase !== null && passphrase !== undefined && passphrase.trim()) {
+    getString += `&passphrase=${encodeURIComponent(passphrase.trim()).replace(/%20/g, '+')}`
   }
 
   // Generate MD5 hash
