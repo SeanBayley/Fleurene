@@ -63,13 +63,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     try {
-      console.log('Fetching profile for user:', userId)
+      console.log('🔍 [AuthContext] Fetching profile for user:', userId)
       
-      const { data, error } = await supabase.from("user_profiles").select("*").eq("id", userId).single()
+      // First, let's try a raw query to see what Supabase can access
+      const { data: rawData, error: rawError } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("id", userId)
+      
+      console.log('🔍 [AuthContext] Raw query result:', { rawData, rawError })
+      
+      // Also test role-specific query
+      const { data: roleData, error: roleError } = await supabase
+        .from("user_profiles")
+        .select("role")
+        .eq("id", userId)
+        .single()
+      
+      console.log('🔍 [AuthContext] Role-only query result:', { roleData, roleError })
+      
+      // Try explicit field selection to debug
+      const { data, error } = await supabase
+        .from("user_profiles")
+        .select("id, email, first_name, last_name, role, created_at, updated_at")
+        .eq("id", userId)
+        .single()
 
       if (error && error.code !== "PGRST116") {
-        console.error("Error fetching profile:", error)
-        console.error("Error details:", {
+        console.error("🔍 [AuthContext] Error fetching profile:", error)
+        console.error("🔍 [AuthContext] Error details:", {
           code: error.code,
           message: error.message,
           details: error.details,
@@ -78,20 +100,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Set profile to null explicitly on error
         setProfile(null)
       } else if (error && error.code === "PGRST116") {
-        console.log("No profile found for user (PGRST116):", userId)
+        console.log("🔍 [AuthContext] No profile found for user (PGRST116):", userId)
         setProfile(null)
       } else if (data) {
-        console.log("Profile loaded successfully:", data)
+        console.log("🔍 [AuthContext] Profile loaded successfully:")
+        console.log("🔍 [AuthContext] Full profile data:", JSON.stringify(data, null, 2))
+        console.log("🔍 [AuthContext] Role field specifically:", data.role)
+        console.log("🔍 [AuthContext] Role type:", typeof data.role)
+        console.log("🔍 [AuthContext] All keys in profile:", Object.keys(data))
         setProfile(data)
       } else {
-        console.log("No profile data returned for user:", userId)
+        console.log("🔍 [AuthContext] No profile data returned for user:", userId)
         setProfile(null)
       }
     } catch (error) {
-      console.error("Exception while fetching profile:", error)
+      console.error("🔍 [AuthContext] Exception while fetching profile:", error)
       setProfile(null)
     } finally {
-      console.log('Profile fetch completed, setting loading to false')
+      console.log('🔍 [AuthContext] Profile fetch completed, setting loading to false')
       setLoading(false)
     }
   }
