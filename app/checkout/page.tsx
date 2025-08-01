@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCart } from '@/components/cart/cart-provider'
 import { useAuth } from '@/components/auth-context'
@@ -50,9 +50,10 @@ const CHECKOUT_STEPS = [
   { id: 4, title: 'Confirmation', icon: Package }
 ]
 
-export default function CheckoutPage() {
-  const router = useRouter()
+// Component that handles search params (needs Suspense)
+function CheckoutWithSearchParams() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const { user, profile } = useAuth()
   const { items, totalItems, totalPrice, totalSavings, validateCart, clearCart } = useCart()
   const [currentStep, setCurrentStep] = useState(1)
@@ -815,5 +816,21 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Main page component with Suspense wrapper
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading checkout...</p>
+        </div>
+      </div>
+    }>
+      <CheckoutWithSearchParams />
+    </Suspense>
   )
 } 
