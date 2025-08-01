@@ -154,12 +154,12 @@ export default function DebugAuthPage() {
       loading
     })
 
-    // If we have a user but no profile after 5 seconds, something is wrong
+    // If we have a user but no profile after 30 seconds, something is wrong
     if (user && !profile && !loading) {
       const timeout = setTimeout(() => {
-        console.error('🔍 [DebugAuth] WARNING: User exists but no profile loaded after 5 seconds!')
+        console.error('🔍 [DebugAuth] WARNING: User exists but no profile loaded after 30 seconds!')
         console.error('🔍 [DebugAuth] This indicates a stuck auth state')
-      }, 5000)
+      }, 30000)
 
       return () => clearTimeout(timeout)
     }

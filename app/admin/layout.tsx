@@ -108,7 +108,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         setAuthError(`Authentication check timed out (${elapsed}ms)`)
         setChecking(false)
       }
-    }, 8000) // Reduced to 8 seconds
+    }, 30000) // Increased to 30 seconds
 
     // REMOVED: No more caching - check admin status on every page load
     // This ensures fresh auth checks for each admin page

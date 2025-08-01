@@ -33,11 +33,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let isInitialized = false
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('🔍 [AuthContext] Initial session check:', session?.user?.id)
       setSession(session)
       setUser(session?.user ?? null)
-      if (session?.user) {
+      if (session?.user && !isInitialized) {
+        isInitialized = true
         fetchProfile(session.user.id)
       } else {
         setLoading(false)
@@ -49,6 +53,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('🔍 [AuthContext] Auth state change event:', event, 'user:', session?.user?.id)
+      
+      // Skip INITIAL_SESSION if we already handled it
+      if (event === 'INITIAL_SESSION' && isInitialized) {
+        console.log('🔍 [AuthContext] Skipping INITIAL_SESSION - already handled')
+        return
+      }
+      
       setSession(session)
       setUser(session?.user ?? null)
 
@@ -73,10 +84,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const fetchProfile = async (userId: string) => {
     const startTime = Date.now()
     const timeoutId = setTimeout(() => {
-      console.error('🔍 [AuthContext] Profile fetch timed out after 10 seconds')
+      console.error('🔍 [AuthContext] Profile fetch timed out after 30 seconds')
       setProfile(null)
       setLoading(false)
-    }, 10000)
+    }, 30000)
 
     try {
       console.log('🔍 [AuthContext] Fetching profile for user:', userId)
