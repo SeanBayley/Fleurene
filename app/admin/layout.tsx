@@ -75,7 +75,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const { user, profile, loading, signOut } = useAuth()
   const router = useRouter()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
+  // Removed isAdmin state - we check profile?.role directly
   const [checking, setChecking] = useState(true)
   const [authError, setAuthError] = useState<string | null>(null)
   const [authCheckStartTime, setAuthCheckStartTime] = useState<number>(Date.now())
@@ -110,12 +110,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       }
     }, 8000) // Reduced to 8 seconds
 
-    // If we've already confirmed admin status and still have user, skip detailed checks
-    if (isAdmin && user && profile?.role === 'admin') {
-      console.log(`🔐 [AdminLayout] Admin already confirmed, skipping detailed checks`)
-      clearTimeout(timeout)
-      return () => clearTimeout(timeout)
-    }
+    // REMOVED: No more caching - check admin status on every page load
+    // This ensures fresh auth checks for each admin page
 
     if (!loading) {
       console.log(`🔐 [AdminLayout] Auth loading complete, processing...`)
@@ -135,7 +131,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       if (profile?.role === 'admin') {
         const elapsed = Date.now() - startTime
         console.log(`🔐 [AdminLayout] Admin access confirmed in ${elapsed}ms for user:`, user.id)
-        setIsAdmin(true)
         setChecking(false)
         clearTimeout(timeout)
       } else if (profile && profile.role !== 'admin') {
@@ -161,14 +156,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       console.log(`🔐 [AdminLayout] Cleanup: clearing timeout`)
       clearTimeout(timeout)
     }
-  }, [user, profile, loading, router, isAdmin])
+  }, [user, profile, loading, router])
 
   const handleSignOut = async () => {
     await signOut()
     router.push('/')
   }
 
-  if (loading || checking) {
+  if (loading || checking || !profile) {
     return (
       <div className="fixed inset-0 bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center z-50">
         <div className="text-center">
@@ -190,7 +185,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     )
   }
 
-  if (!isAdmin) {
+  if (!profile || profile.role !== 'admin') {
     return (
       <div className="fixed inset-0 bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center z-50">
         <div className="max-w-md bg-white rounded-lg shadow-lg p-6">
