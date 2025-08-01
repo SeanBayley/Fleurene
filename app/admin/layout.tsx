@@ -78,23 +78,53 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [isAdmin, setIsAdmin] = useState(false)
   const [checking, setChecking] = useState(true)
   const [authError, setAuthError] = useState<string | null>(null)
+  const [authCheckStartTime, setAuthCheckStartTime] = useState<number>(Date.now())
 
   useEffect(() => {
-    // Add a timeout to prevent infinite loading
+    const startTime = Date.now()
+    setAuthCheckStartTime(startTime)
+    
+    console.log(`🔐 [AdminLayout] Auth check started at ${new Date().toISOString()}`)
+    console.log(`🔐 [AdminLayout] Current state:`, {
+      loading,
+      hasUser: !!user,
+      userId: user?.id,
+      profileRole: profile?.role,
+      profileLoaded: profile !== undefined,
+      checking
+    })
+
+    // Reduce timeout and add more detailed logging
     const timeout = setTimeout(() => {
       if (checking) {
-        console.error('Auth check timed out')
-        setAuthError('Authentication check timed out')
+        const elapsed = Date.now() - startTime
+        console.error(`🔐 [AdminLayout] Auth check timed out after ${elapsed}ms`)
+        console.error(`🔐 [AdminLayout] Final state:`, {
+          loading,
+          hasUser: !!user,
+          profileLoaded: profile !== undefined,
+          profileRole: profile?.role
+        })
+        setAuthError(`Authentication check timed out (${elapsed}ms)`)
         setChecking(false)
       }
-    }, 10000) // 10 second timeout
+    }, 8000) // Reduced to 8 seconds
+
+    // If we've already confirmed admin status and still have user, skip detailed checks
+    if (isAdmin && user && profile?.role === 'admin') {
+      console.log(`🔐 [AdminLayout] Admin already confirmed, skipping detailed checks`)
+      clearTimeout(timeout)
+      return () => clearTimeout(timeout)
+    }
 
     if (!loading) {
+      console.log(`🔐 [AdminLayout] Auth loading complete, processing...`)
+      
       // Clear any previous auth errors
       setAuthError(null)
       
       if (!user) {
-        console.log('No user found, redirecting to sign in')
+        console.log(`🔐 [AdminLayout] No user found, redirecting to sign in`)
         router.push('/?auth=signin&message=Please sign in to access admin area')
         setChecking(false)
         clearTimeout(timeout)
@@ -103,24 +133,35 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       // Check if user is admin
       if (profile?.role === 'admin') {
-        console.log('Admin access confirmed')
+        const elapsed = Date.now() - startTime
+        console.log(`🔐 [AdminLayout] Admin access confirmed in ${elapsed}ms for user:`, user.id)
         setIsAdmin(true)
         setChecking(false)
+        clearTimeout(timeout)
       } else if (profile && profile.role !== 'admin') {
-        console.log('User is not admin, role:', profile.role)
+        console.log(`🔐 [AdminLayout] User is not admin, role:`, profile.role)
         router.push('/?error=access_denied&message=Admin access required')
         setChecking(false)
+        clearTimeout(timeout)
       } else if (profile === null) {
         // Profile is explicitly null - this could be a database issue
-        console.error('Profile is null for user:', user.id)
+        console.error(`🔐 [AdminLayout] Profile is null for user:`, user.id)
         setAuthError('Unable to load user profile')
         setChecking(false)
+        clearTimeout(timeout)
+      } else {
+        // Profile is undefined, still waiting
+        console.log(`🔐 [AdminLayout] Still waiting for profile to load...`)
       }
-      // If profile is undefined, we're still waiting for it to load
+    } else {
+      console.log(`🔐 [AdminLayout] Auth still loading...`)
     }
 
-    return () => clearTimeout(timeout)
-  }, [user, profile, loading, router, checking])
+    return () => {
+      console.log(`🔐 [AdminLayout] Cleanup: clearing timeout`)
+      clearTimeout(timeout)
+    }
+  }, [user, profile, loading, router, isAdmin])
 
   const handleSignOut = async () => {
     await signOut()
