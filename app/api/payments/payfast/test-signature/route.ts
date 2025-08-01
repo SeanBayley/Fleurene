@@ -83,7 +83,7 @@ function generateTestSignature(data: Record<string, any>, passphrase?: string): 
   for (const key of payfastFieldOrder) {
     if (data.hasOwnProperty(key) && data[key] !== '' && data[key] !== null && data[key] !== undefined) {
       const val = data[key].toString().trim()
-      pfOutput += `${key}=${encodeURIComponent(val).replace(/%20/g, '+').toUpperCase()}&`
+      pfOutput += `${key}=${encodeURIComponent(val).replace(/%20/g, '+')}&`
     }
   }
   
@@ -92,7 +92,7 @@ function generateTestSignature(data: Record<string, any>, passphrase?: string): 
   
   // Add passphrase if provided
   if (passphrase !== null && passphrase !== undefined && passphrase.trim()) {
-    getString += `&passphrase=${encodeURIComponent(passphrase.trim()).replace(/%20/g, '+').toUpperCase()}`
+    getString += `&passphrase=${encodeURIComponent(passphrase.trim()).replace(/%20/g, '+')}`
   }
 
   console.log('Test signature string (correct field order):', getString)

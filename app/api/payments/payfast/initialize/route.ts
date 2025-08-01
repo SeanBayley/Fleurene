@@ -173,25 +173,36 @@ function generatePayfastSignature(data: Record<string, any>, passphrase?: string
     'subscription_type'
   ]
   
+  // URL fields that need uppercase encoding
+  const urlFields = ['return_url', 'cancel_url', 'notify_url']
+  
   let pfOutput = ''
   
   // Process fields in Payfast attribute order
   for (const key of payfastFieldOrder) {
     if (data.hasOwnProperty(key) && data[key] !== '' && data[key] !== null && data[key] !== undefined) {
       const val = data[key].toString().trim()
-      pfOutput += `${key}=${encodeURIComponent(val).replace(/%20/g, '+').toUpperCase()}&`
+      
+      // Special encoding for URL fields: must be UPPERCASE
+      if (urlFields.includes(key)) {
+        const encodedVal = encodeURIComponent(val).replace(/%20/g, '+').toUpperCase()
+        pfOutput += `${key}=${encodedVal}&`
+      } else {
+        // Standard encoding for non-URL fields
+        pfOutput += `${key}=${encodeURIComponent(val).replace(/%20/g, '+')}&`
+      }
     }
   }
   
   // Remove last ampersand
   let getString = pfOutput.slice(0, -1)
   
-  // Add passphrase if provided
+  // Add passphrase if provided (passphrase is not a URL, use standard encoding)
   if (passphrase !== null && passphrase !== undefined && passphrase.trim()) {
-    getString += `&passphrase=${encodeURIComponent(passphrase.trim()).replace(/%20/g, '+').toUpperCase()}`
+    getString += `&passphrase=${encodeURIComponent(passphrase.trim()).replace(/%20/g, '+')}`
   }
 
-  console.log('Payfast signature string (correct field order):', getString)
+  console.log('Payfast signature string (correct field order + uppercase URLs):', getString)
 
   // Generate MD5 hash
   const signature = crypto.createHash('md5').update(getString).digest('hex')
